@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>PWT – Private Wireless Talk</title>
+  <meta name="description" content="PWT – Private Wireless Talk by MrTech." />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PWT" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <!-- Splash Screen Overlay -->
+  <div id="splash-screen" class="splash-screen" aria-hidden="true">
+    <div class="splash-inner">
+      <img src="./assets/pwt-logo.jpg" alt="PWT Logo" class="splash-logo" />
+      <h1 class="splash-title">PWT</h1>
+    </div>
+    <p class="splash-credit">Developed by MrTech</p>
+  </div>
+
+  <!-- MINIMAL APP INSTALLER POPUP GATE (Browser Mode Only) -->
+  <main id="install-gate-view" class="gate-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="installer-title">
+    <div class="gate-backdrop-preview" aria-hidden="true"></div>
+    <div class="installer-popup">
+      <img src="./assets/pwt-logo.jpg" alt="PWT" class="installer-logo" />
+      <h1 id="installer-title" class="installer-title">PWT</h1>
+      <p class="installer-sub" id="installer-sub">Install app to open</p>
+      <button id="pwa-install-btn" type="button" class="btn btn-primary installer-btn">
+        INSTALL &amp; OPEN
+      </button>
+      <p id="pwa-prompt-status" class="installer-hint hidden"></p>
+      <div class="installer-credit">
+        Developed by <strong>MrTech</strong>
+      </div>
+    </div>
+  </main>
+
+  <!-- INSTALLED STANDALONE PWA TRANSCEIVER UI (Fixed 100dvh Non-Scrolling Display — Phone & Laptop) -->
+  <div id="app-shell-view" class="app-shell hidden">
+    <div class="app-content">
+      <!-- 1. Primary Tactical Transceiver Screen -->
+      <section id="screen-comm" class="screen active">
+        <!-- Top Link & Dual Speaker Grilles -->
+        <div class="hw-link-panel">
+          <div class="hw-speaker-col">
+            <div class="hw-speaker-grille"></div>
+            <span class="hw-sub-readout" id="hw-ch-small">CH 01</span>
+          </div>
+          <div class="hw-link-center">
+            <span class="hw-link-title">L I N K</span>
+            <div class="hw-radio-waves" id="hw-radio-waves"></div>
+            <span class="hw-link-state" id="hw-link-state">OFFLINE</span>
+          </div>
+          <div class="hw-speaker-col">
+            <div class="hw-speaker-grille"></div>
+            <span class="hw-sub-readout hw-vol-label" id="hw-vol-label">VOL 100</span>
+          </div>
+        </div>
+
+        <!-- Dark Brushed-Metal LCD Display -->
+        <div class="hw-lcd-panel">
+          <div class="hw-lcd-top">
+            <div class="hw-signal-bars" id="hw-signal-bars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <span class="hw-online-count" id="hw-online-count">1 ONLINE</span>
+          </div>
+
+          <div class="hw-lcd-digits-row">
+            <div class="hw-speaker-badge">
+              <span class="hw-avatar-glyph">&#128266;</span>
+            </div>
+            <div class="hw-ch-readout">
+              <span class="hw-ch-prefix">CH</span>
+              <span class="hw-seven-seg" id="hw-seven-seg">01</span>
+            </div>
+          </div>
+
+          <div class="hw-lcd-meta">
+            <div id="comm-group-title">GROUP: DISPATCH</div>
+            <div id="comm-channel-status">CHANNEL: CLEAR</div>
+          </div>
+
+          <div class="hw-user-pill" id="hw-user-pill">USER: ALPHA-1 (YOU)</div>
+
+          <p class="hw-lcd-footer" id="ptt-status-note">
+            TAP GROUP (SET) TO ENTER NAME &amp; PASSWORD
+          </p>
+        </div>
+
+        <!-- Honeycomb Grille + Illuminated Blue PTT Dome -->
+        <div class="hw-ptt-stage">
+          <div class="hw-honeycomb-panel"></div>
+          <div id="ptt-button" role="button" tabindex="0" aria-label="Push to Talk" class="ptt-dome-btn">
+            <span class="ptt-dome-label" id="ptt-label">PRESS &amp; HOLD<br />TO SPEAK</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Create / Join Group Screen (ONLY Group Name + Password — NO Group ID) -->
+      <section id="screen-create" class="screen screen-sub">
+        <div class="panel-card">
+          <div class="row-between">
+            <h2>Channel Group</h2>
+            <button type="button" class="btn btn-secondary btn-sm" data-back-comm>Back</button>
+          </div>
+          <div class="field-group">
+            <label for="group-name-input">Group Name</label>
+            <input id="group-name-input" type="text" placeholder="DISPATCH" value="DISPATCH" maxlength="24" />
+          </div>
+          <div class="field-group">
+            <label for="group-pass-input">Password</label>
+            <input id="group-pass-input" type="password" placeholder="Min 4 chars" />
+          </div>
+          <p id="create-group-msg" class="helper-note"></p>
+          <button type="button" id="create-group-submit" class="btn btn-primary">
+            Apply &amp; Connect
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. Secure Room (Online Auto + Offline LAN / Hotspot Direct Pair for Phone & Laptop) -->
+      <section id="screen-join" class="screen screen-sub">
+        <div class="panel-card compact-card">
+          <div class="row-between">
+            <h2>Secure Room</h2>
+            <button type="button" class="btn btn-secondary btn-sm" data-back-comm>Back</button>
+          </div>
+
+          <div class="room-mode-row">
+            <button type="button" class="btn btn-primary btn-sm flex-1" data-nav="create">
+              Group &amp; Password
+            </button>
+            <button type="button" id="disconnect-room-btn" class="btn btn-secondary btn-sm">
+              Reset
+            </button>
+          </div>
+
+          <div class="lan-pair-box">
+            <div class="lan-pair-title">No-Internet Wi-Fi / Hotspot Pair (Phone &harr; Laptop)</div>
+            <div class="lan-btn-row">
+              <button type="button" id="lan-create-offer-btn" class="btn btn-secondary btn-sm flex-1">
+                1. Create Offer
+              </button>
+              <button type="button" id="lan-create-answer-btn" class="btn btn-secondary btn-sm flex-1">
+                2. Paste Offer &rarr; Reply
+              </button>
+              <button type="button" id="lan-accept-answer-btn" class="btn btn-primary btn-sm flex-1">
+                3. Apply Reply
+              </button>
+            </div>
+            <textarea id="lan-signal-box" class="lan-textarea" rows="3" placeholder="Offer / Reply code appears here..."></textarea>
+            <div class="row-between">
+              <span id="lan-pair-status" class="helper-note">Works on same Wi-Fi/Hotspot without internet.</span>
+              <button type="button" id="lan-copy-btn" class="btn btn-secondary btn-sm">Copy</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Menu / Settings Screen -->
+      <section id="screen-about" class="screen screen-sub">
+        <div class="panel-card">
+          <div class="row-between">
+            <h2>Menu</h2>
+            <button type="button" class="btn btn-secondary btn-sm" data-back-comm>Back</button>
+          </div>
+          <div class="field-group">
+            <label for="pwa-callsign">Callsign</label>
+            <input id="pwa-callsign" type="text" maxlength="20" value="Alpha-1" />
+          </div>
+          <div class="field-group">
+            <label for="pwa-volume">Speaker Volume (<span id="pwa-volume-val">100</span>%)</label>
+            <input id="pwa-volume" type="range" min="0" max="100" value="100" />
+          </div>
+          <div class="dev-box">
+            <div><strong>Developer:</strong> MrTech</div>
+            <div>
+              <strong>Website:</strong>
+              <a href="https://Mrtech.nptrunamentbd.top" target="_blank" rel="noopener noreferrer">https://Mrtech.nptrunamentbd.top</a>
+            </div>
+            <div><strong>Laptop PTT:</strong> Hold/Tap <code>Space</code> key or Mouse</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Bottom 5-Key Hardware Dock -->
+    <nav class="hw-dock" aria-label="Radio Hardware Controls">
+      <button type="button" class="hw-key" id="dock-mode-btn">
+        <span class="hw-key-ico">&#9788;</span>
+        <span class="hw-key-title">MODE</span>
+        <span class="hw-key-val" id="dock-mode-val">HOLD</span>
+      </button>
+      <button type="button" class="hw-key" id="dock-beep-btn">
+        <span class="hw-key-ico">&#128266;</span>
+        <span class="hw-key-title">BEEP</span>
+        <span class="hw-key-val" id="dock-beep-val">ON</span>
+      </button>
+      <button type="button" class="hw-key" id="dock-people-btn" data-nav="comm">
+        <span class="hw-key-ico">&#128101;</span>
+        <span class="hw-key-title">PEOPLE</span>
+        <span class="hw-key-val" id="dock-people-val">1 LIVE</span>
+      </button>
+      <button type="button" class="hw-key" id="dock-secure-btn" data-nav="create">
+        <span class="hw-key-ico">&#128274;</span>
+        <span class="hw-key-title">GROUP</span>
+        <span class="hw-key-val">SET</span>
+      </button>
+      <button type="button" class="hw-key" id="dock-menu-btn" data-nav="about">
+        <span class="hw-key-ico">&#9776;</span>
+        <span class="hw-key-title">MENU</span>
+        <span class="hw-key-val">SET</span>
+      </button>
+    </nav>
+
+    <footer class="mrtech-footer">
+      <span>Developed by <strong>MrTech</strong></span>
+      <span class="dot-sep">&bull;</span>
+      <button type="button" class="link-btn" id="open-lan-pair-link" data-nav="join">LAN Pair</button>
+    </footer>
+  </div>
+
+  <!-- PERMISSION GATE: app khulle mic permission na thakle eta dekhabe -->
+  <div id="perm-gate" class="perm-gate hidden" role="dialog" aria-modal="true" aria-labelledby="perm-gate-title">
+    <div class="perm-card">
+      <div class="perm-ico" aria-hidden="true">&#127908;</div>
+      <h2 id="perm-gate-title">অনুমতি দিন</h2>
+      <p id="perm-gate-msg" class="perm-msg">কথা বলার জন্য মাইক্রোফোনের অনুমতি লাগবে।</p>
+      <ul class="perm-list">
+        <li>&#127908; মাইক্রোফোন — কথা বলার জন্য</li>
+        <li>&#128276; Notification — কেউ কথা বললে জানার জন্য</li>
+        <li>&#128274; Storage — app-এর data সুরক্ষিত রাখতে</li>
+        <li>&#128161; Screen চালু — কথা মাঝপথে না কাটার জন্য</li>
+      </ul>
+      <div id="perm-gate-steps" class="perm-steps hidden">
+        <strong>অনুমতি বন্ধ থাকলে:</strong><br />
+        ফোনের <b>Settings &rarr; Apps &rarr; PWT (বা Chrome) &rarr; Permissions &rarr; Microphone &rarr; Allow</b> করুন,
+        তারপর app-এ ফিরে এসে নিচের বাটনে চাপ দিন।
+      </div>
+      <button id="perm-allow-btn" type="button" class="btn btn-primary perm-btn">সব অনুমতি দিন</button>
+    </div>
+  </div>
+
+  <div id="remote-audio-container" class="hidden" aria-hidden="true"></div>
+  <script src="./assets/app.js"></script>
+</body>
+</html>

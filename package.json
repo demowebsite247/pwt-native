@@ -1,0 +1,13 @@
+{
+  "name": "pwt-native",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PWT – Private Wireless Talk (Android native wrapper)",
+  "dependencies": {
+    "@capacitor/android": "latest",
+    "@capacitor/core": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest"
+  }
+}

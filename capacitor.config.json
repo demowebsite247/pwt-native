@@ -1,0 +1,11 @@
+{
+  "appId": "com.pwt.offlinetalk",
+  "appName": "PWT",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
